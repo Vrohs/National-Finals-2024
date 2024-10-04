@@ -1,12 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "./CarbonCredit.sol";
 
-contract Verification is AccessControl {
-    bytes32 public constant VERIFIER_ROLE = keccak256("VERIFIER_ROLE");
-    
+contract Verification is Ownable {
     CarbonCredit public carbonCredit;
     
     struct VerificationData {
@@ -16,18 +14,23 @@ contract Verification is AccessControl {
     }
     
     mapping(uint256 => VerificationData) public verificationRecords;
+    mapping(address => bool) public verifiers;
     
     event CreditVerified(uint256 indexed tokenId, address indexed verifier, string metadataURI);
     event VerifierAdded(address indexed account);
     event VerifierRemoved(address indexed account);
 
-    constructor(address _carbonCredit) {
-        carbonCredit = CarbonCredit(_carbonCredit);
-        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _grantRole(VERIFIER_ROLE, msg.sender);
+    modifier onlyVerifier() {
+        require(verifiers[msg.sender], "Caller is not a verifier");
+        _;
     }
 
-    function verifyCredit(uint256 tokenId, string memory verificationMetadataURI) external onlyRole(VERIFIER_ROLE) {
+    constructor(address _carbonCredit) Ownable(msg.sender) {
+        carbonCredit = CarbonCredit(_carbonCredit);
+        verifiers[msg.sender] = true;
+    }
+
+    function verifyCredit(uint256 tokenId, string memory verificationMetadataURI) external onlyVerifier {
         carbonCredit.verifyCredit(tokenId);
         
         verificationRecords[tokenId] = VerificationData({
@@ -39,17 +42,21 @@ contract Verification is AccessControl {
         emit CreditVerified(tokenId, msg.sender, verificationMetadataURI);
     }
 
-    function addVerifier(address account) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        grantRole(VERIFIER_ROLE, account);
+    function addVerifier(address account) external onlyOwner {
+        verifiers[account] = true;
         emit VerifierAdded(account);
     }
 
-    function removeVerifier(address account) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        revokeRole(VERIFIER_ROLE, account);
+    function removeVerifier(address account) external onlyOwner {
+        verifiers[account] = false;
         emit VerifierRemoved(account);
     }
 
     function getVerificationData(uint256 tokenId) external view returns (VerificationData memory) {
         return verificationRecords[tokenId];
+    }
+
+    function isVerifier(address account) external view returns (bool) {
+        return verifiers[account];
     }
 }
