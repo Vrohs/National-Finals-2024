@@ -5,7 +5,7 @@ describe("CarbonCredit", function () {
   let carbonCredit, owner, addr1;
   const amount = 100;
   const projectType = "Reforestation";
-  const validityPeriod = 365 * 24 * 60 * 60; // 1 year in seconds
+  const validityPeriod = 365 * 24 * 60 * 60; // seconds
   const metadataURI = "ipfs://example";
 
   beforeEach(async function () {
@@ -36,8 +36,9 @@ describe("CarbonCredit", function () {
   });
 
   describe("Verification", function () {
-    it("Should verify a carbon credit", async function () {
-      // First mint a credit
+    it("verified a carbon credit", async function () {
+      
+        // minting a credit
       await carbonCredit.mintCredit(
         addr1.address,
         amount,
@@ -46,7 +47,8 @@ describe("CarbonCredit", function () {
         metadataURI
       );
 
-      // Then verify it
+      
+      
       await expect(carbonCredit.verifyCredit(0))
         .to.emit(carbonCredit, "CreditVerified")
         .withArgs(0);
@@ -55,7 +57,7 @@ describe("CarbonCredit", function () {
       expect(credit.verified).to.equal(true);
     });
 
-    it("Should fail to verify non-existent credit", async function () {
+    it("failed to verify non-existent credit", async function () {
       await expect(carbonCredit.verifyCredit(999))
         .to.be.revertedWith("Token does not exist");
     });
