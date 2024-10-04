@@ -1,0 +1,27 @@
+{
+  "name": "terratoken.io",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Vrohs/TerraToken.git"
+  },
+  "author": "Vivek Rohtasvi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Vrohs/TerraToken/issues"
+  },
+  "homepage": "https://github.com/Vrohs/TerraToken#readme",
+  "description": "",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.12"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.2",
+    "dotenv": "^16.4.5"
+  }
+}
