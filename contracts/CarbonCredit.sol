@@ -3,11 +3,9 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
 
 contract CarbonCredit is ERC721, Ownable {
-    using Counters for Counters.Counter;
-    Counters.Counter private _tokenIds;
+    uint256 private _nextTokenId;
 
     struct Credit {
         uint256 amount; // Amount of carbon offset in tonnes
@@ -31,12 +29,10 @@ contract CarbonCredit is ERC721, Ownable {
         uint256 validityPeriod,
         string memory metadataURI
     ) public onlyOwner returns (uint256) {
-        _tokenIds.increment();
-        uint256 newTokenId = _tokenIds.current();
-
-        _safeMint(recipient, newTokenId);
+        uint256 tokenId = _nextTokenId++;
+        _safeMint(recipient, tokenId);
         
-        credits[newTokenId] = Credit({
+        credits[tokenId] = Credit({
             amount: amount,
             projectType: projectType,
             validUntil: block.timestamp + validityPeriod,
@@ -44,18 +40,18 @@ contract CarbonCredit is ERC721, Ownable {
             metadataURI: metadataURI
         });
 
-        emit CreditMinted(newTokenId, recipient, amount);
-        return newTokenId;
+        emit CreditMinted(tokenId, recipient, amount);
+        return tokenId;
     }
 
     function verifyCredit(uint256 tokenId) public onlyOwner {
-        require(_exists(tokenId), "Token does not exist");
+        require(_ownerOf(tokenId) != address(0), "Token does not exist");
         credits[tokenId].verified = true;
         emit CreditVerified(tokenId);
     }
 
     function getCreditDetails(uint256 tokenId) public view returns (Credit memory) {
-        require(_exists(tokenId), "Token does not exist");
+        require(_ownerOf(tokenId) != address(0), "Token does not exist");
         return credits[tokenId];
     }
 }

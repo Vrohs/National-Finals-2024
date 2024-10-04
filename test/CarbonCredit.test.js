@@ -2,21 +2,21 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
 describe("CarbonCredit", function () {
-  let CarbonCredit, carbonCredit, owner, addr1;
+  let carbonCredit, owner, addr1;
+  const amount = 100;
+  const projectType = "Reforestation";
+  const validityPeriod = 365 * 24 * 60 * 60; // 1 year in seconds
+  const metadataURI = "ipfs://example";
 
   beforeEach(async function () {
-    CarbonCredit = await ethers.getContractFactory("CarbonCredit");
     [owner, addr1] = await ethers.getSigners();
+    
+    const CarbonCredit = await ethers.getContractFactory("CarbonCredit");
     carbonCredit = await CarbonCredit.deploy();
   });
 
   describe("Minting", function () {
     it("Should mint a new carbon credit", async function () {
-      const amount = 100;
-      const projectType = "Reforestation";
-      const validityPeriod = 365 * 24 * 60 * 60; // 1 year in seconds
-      const metadataURI = "ipfs://example";
-
       await expect(carbonCredit.mintCredit(
         addr1.address,
         amount,
@@ -25,9 +25,9 @@ describe("CarbonCredit", function () {
         metadataURI
       ))
         .to.emit(carbonCredit, "CreditMinted")
-        .withArgs(1, addr1.address, amount);
+        .withArgs(0, addr1.address, amount);
 
-      const credit = await carbonCredit.getCreditDetails(1);
+      const credit = await carbonCredit.getCreditDetails(0);
       expect(credit.amount).to.equal(amount);
       expect(credit.projectType).to.equal(projectType);
       expect(credit.verified).to.equal(false);
@@ -37,20 +37,27 @@ describe("CarbonCredit", function () {
 
   describe("Verification", function () {
     it("Should verify a carbon credit", async function () {
+      // First mint a credit
       await carbonCredit.mintCredit(
         addr1.address,
-        100,
-        "Reforestation",
-        365 * 24 * 60 * 60,
-        "ipfs://example"
+        amount,
+        projectType,
+        validityPeriod,
+        metadataURI
       );
 
-      await expect(carbonCredit.verifyCredit(1))
+      // Then verify it
+      await expect(carbonCredit.verifyCredit(0))
         .to.emit(carbonCredit, "CreditVerified")
-        .withArgs(1);
+        .withArgs(0);
 
-      const credit = await carbonCredit.getCreditDetails(1);
+      const credit = await carbonCredit.getCreditDetails(0);
       expect(credit.verified).to.equal(true);
+    });
+
+    it("Should fail to verify non-existent credit", async function () {
+      await expect(carbonCredit.verifyCredit(999))
+        .to.be.revertedWith("Token does not exist");
     });
   });
 });
