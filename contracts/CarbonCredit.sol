@@ -8,11 +8,11 @@ contract CarbonCredit is ERC721, Ownable {
     uint256 private _nextTokenId;
 
     struct Credit {
-        uint256 amount; // Amount of carbon offset in tonnes
-        string projectType; // Type of carbon offset project
-        uint256 validUntil; // Timestamp until which the credit is valid
-        bool verified; // Verification status
-        string metadataURI; // URI for additional metadata
+        uint256 amount; // Amount of carbon offset (tonnes)
+        string projectType; // Type of carbon offset
+        uint256 validUntil; // Time until which the credit is valid
+        bool verified; 
+        string metadataURI; // additional metadata
     }
 
     mapping(uint256 => Credit) public credits;

@@ -1,0 +1,535 @@
+Case for a Decentralized Carbon Credit Trading Platform## What is the Carbon Credit Market?The carbon credit market is a key component in the global effort to reduce greenhouse gas emissions and combat climate change. Here's a brief overview:1. Definition: A carbon credit represents the right to emit one tonne of carbon dioxide or equivalent greenhouse gas.2. Purpose: The market creates a financial incentive for companies and individuals to reduce their carbon emissions.3. How it works: - Entities that reduce their emissions below a set quota can sell their excess allowances as credits. - Those who exceed their quotas can buy these credits to offset their excess emissions.4. Types of credits: - Compliance markets: Legally mandated, used by companies and governments to meet regulatory requirements. - Voluntary markets: Used by businesses and individuals to voluntarily offset their carbon footprint.5. Project examples: Reforestation, renewable energy installations, methane capture from landfills, etc.6. Current challenges: Lack of standardization, verification difficulties, and limited accessibility for smaller participants.## The ProblemThe current carbon credit market faces several challenges:1. Lack of transparency leading to double-counting and fraud2. High entry barriers for smaller players3. Inefficient and costly verification processes4. Limited liquidity and market access---------------------------------------------------------------------------------------------------------------## Our SolutionOur decentralized platform addresses these issues by:1. Using blockchain to ensure transparent, immutable record-keeping2. Tokenizing carbon credits as NFTs for easy trading and tracking3. Implementing smart contracts for automated, cost-effective verification4. Enabling peer-to-peer trading to increase market accessibility5. Integrating IoT devices for real-time monitoring and verification## Key Benefits1. Increased trust in the carbon offset market2. Reduced costs for all participants3. Improved accessibility for smaller entities4. Enhanced efficiency in credit issuance and trading5. Real-time tracking of carbon sequestration efforts## Market PotentialThe global carbon credit market is projected to reach $2.4 trillion by 2027. By addressing current inefficiencies, our platform could capture a significant portion of this market while accelerating global efforts to combat climate change.## Competitive AdvantageUnlike traditional carbon credit systems, our platform:- Offers unparalleled transparency- Reduces verification costs by up to 90%- Enables real-time tracking and trading- Is accessible to both large corporations and individual landowners## Call to ActionBy supporting this project, you're not just backing a innovative technology solution – you're contributing to a more efficient, transparent, and accessible system for global carbon reduction efforts. Let's revolutionize the fight against climate change, one carbon credit at a time.
+
+
+ --------------------------------------------------------------------------
+
+I chose alchemy as blockchain platform, and following is the structure...
+# Carbon Credit Trading Platform
+
+## Project Structure
+```
+carbon-credit-platform/
+├── contracts/
+│   ├── CarbonCredit.sol       # ERC-721 token for carbon credits
+│   ├── CarbonCreditMarket.sol # Marketplace for trading credits
+│   └── Verification.sol       # Verification logic and oracles
+├── frontend/
+│   ├── components/
+│   ├── pages/
+│   └── services/
+└── backend/
+    ├── api/
+    └── verification-service/
+```
+
+## Tech Stack
+- Blockchain: Ethereum (Alchemy)
+- Smart Contracts: Solidity
+- Frontend: React.js + ethers.js
+- Backend: Node.js
+- Development Tools: Hardhat, OpenZeppelin
+
+## Three Main Sections
+1. Smart Contracts Development
+2. Frontend Interface
+3. Backend Services & Verification System
+--------------------------------------------------------------------------------------------------------------------
+
+so far i've done
+----------------------------
+CarbonCredit.sol
+
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract CarbonCredit is ERC721, Ownable {
+    uint256 private _nextTokenId;
+
+    struct Credit {
+        uint256 amount; // Amount of carbon offset in tonnes
+        string projectType; // Type of carbon offset project
+        uint256 validUntil; // Timestamp until which the credit is valid
+        bool verified; // Verification status
+        string metadataURI; // URI for additional metadata
+    }
+
+    mapping(uint256 => Credit) public credits;
+
+    event CreditMinted(uint256 indexed tokenId, address indexed owner, uint256 amount);
+    event CreditVerified(uint256 indexed tokenId);
+
+    constructor() ERC721("Carbon Credit", "CC") Ownable(msg.sender) {}
+
+    function mintCredit(
+        address recipient,
+        uint256 amount,
+        string memory projectType,
+        uint256 validityPeriod,
+        string memory metadataURI
+    ) public onlyOwner returns (uint256) {
+        uint256 tokenId = _nextTokenId++;
+        _safeMint(recipient, tokenId);
+        
+        credits[tokenId] = Credit({
+            amount: amount,
+            projectType: projectType,
+            validUntil: block.timestamp + validityPeriod,
+            verified: false,
+            metadataURI: metadataURI
+        });
+
+        emit CreditMinted(tokenId, recipient, amount);
+        return tokenId;
+    }
+
+    function verifyCredit(uint256 tokenId) public onlyOwner {
+        require(_ownerOf(tokenId) != address(0), "Token does not exist");
+        credits[tokenId].verified = true;
+        emit CreditVerified(tokenId);
+    }
+
+    function getCreditDetails(uint256 tokenId) public view returns (Credit memory) {
+        require(_ownerOf(tokenId) != address(0), "Token does not exist");
+        return credits[tokenId];
+    }
+}
+-----------------------------
+
+----------------------------------------
+CarbonCreditMarket.sol
+
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract CarbonCreditMarket is Ownable {
+    struct Listing {
+        address seller;
+        uint256 price;
+        bool isActive;
+    }
+
+    IERC721 public carbonCreditToken;
+    
+    mapping(uint256 => Listing) public listings;
+    
+    event CreditListed(uint256 indexed tokenId, address indexed seller, uint256 price);
+    event CreditSold(uint256 indexed tokenId, address indexed seller, address indexed buyer, uint256 price);
+    event ListingCanceled(uint256 indexed tokenId, address indexed seller);
+    event PriceUpdated(uint256 indexed tokenId, uint256 newPrice);
+
+    constructor(address _carbonCreditToken) Ownable(msg.sender) {
+        carbonCreditToken = IERC721(_carbonCreditToken);
+    }
+
+    function listCredit(uint256 tokenId, uint256 price) external {
+        require(carbonCreditToken.ownerOf(tokenId) == msg.sender, "Not token owner");
+        require(carbonCreditToken.getApproved(tokenId) == address(this), "Market not approved");
+        
+        listings[tokenId] = Listing({
+            seller: msg.sender,
+            price: price,
+            isActive: true
+        });
+        
+        emit CreditListed(tokenId, msg.sender, price);
+    }
+
+    function buyCredit(uint256 tokenId) external payable {
+        Listing memory listing = listings[tokenId];
+        require(listing.isActive, "Listing not active");
+        require(msg.value == listing.price, "Incorrect price");
+        
+        address seller = listing.seller;
+        delete listings[tokenId];
+        
+        carbonCreditToken.transferFrom(seller, msg.sender, tokenId);
+        
+        (bool sent, ) = payable(seller).call{value: msg.value}("");
+        require(sent, "Failed to send Ether");
+        
+        emit CreditSold(tokenId, seller, msg.sender, msg.value);
+    }
+
+    function cancelListing(uint256 tokenId) external {
+        require(listings[tokenId].seller == msg.sender, "Not the seller");
+        delete listings[tokenId];
+        emit ListingCanceled(tokenId, msg.sender);
+    }
+
+    function updatePrice(uint256 tokenId, uint256 newPrice) external {
+        require(listings[tokenId].seller == msg.sender, "Not the seller");
+        listings[tokenId].price = newPrice;
+        emit PriceUpdated(tokenId, newPrice);
+    }
+}
+------------------------------------------------------------
+
+------------------------------------------------------------
+verification.sol
+
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "./CarbonCredit.sol";
+
+contract Verification is Ownable {
+    CarbonCredit public carbonCredit;
+    
+    struct VerificationData {
+        address verifier;
+        uint256 timestamp;
+        string metadataURI;
+    }
+    
+    mapping(uint256 => VerificationData) public verificationRecords;
+    mapping(address => bool) public verifiers;
+    
+    event CreditVerified(uint256 indexed tokenId, address indexed verifier, string metadataURI);
+    event VerifierAdded(address indexed account);
+    event VerifierRemoved(address indexed account);
+
+    modifier onlyVerifier() {
+        require(verifiers[msg.sender], "Caller is not a verifier");
+        _;
+    }
+
+    constructor(address _carbonCredit) Ownable(msg.sender) {
+        carbonCredit = CarbonCredit(_carbonCredit);
+        verifiers[msg.sender] = true;
+    }
+
+    function verifyCredit(uint256 tokenId, string memory verificationMetadataURI) external onlyVerifier {
+        carbonCredit.verifyCredit(tokenId);
+        
+        verificationRecords[tokenId] = VerificationData({
+            verifier: msg.sender,
+            timestamp: block.timestamp,
+            metadataURI: verificationMetadataURI
+        });
+        
+        emit CreditVerified(tokenId, msg.sender, verificationMetadataURI);
+    }
+
+    function addVerifier(address account) external onlyOwner {
+        verifiers[account] = true;
+        emit VerifierAdded(account);
+    }
+
+    function removeVerifier(address account) external onlyOwner {
+        verifiers[account] = false;
+        emit VerifierRemoved(account);
+    }
+
+    function getVerificationData(uint256 tokenId) external view returns (VerificationData memory) {
+        return verificationRecords[tokenId];
+    }
+
+    function isVerifier(address account) external view returns (bool) {
+        return verifiers[account];
+    }
+}
+------------------------------------------------------------
+
+
+-------------------------------------------------------------------
+CarbonCredit.test.js
+
+const { expect } = require("chai");
+const { ethers } = require("hardhat");
+
+describe("CarbonCredit", function () {
+  let carbonCredit, owner, addr1;
+  const amount = 100;
+  const projectType = "Reforestation";
+  const validityPeriod = 365 * 24 * 60 * 60; // seconds
+  const metadataURI = "ipfs://example";
+
+  beforeEach(async function () {
+    [owner, addr1] = await ethers.getSigners();
+    
+    const CarbonCredit = await ethers.getContractFactory("CarbonCredit");
+    carbonCredit = await CarbonCredit.deploy();
+  });
+
+  describe("Minting", function () {
+    it("Should mint a new carbon credit", async function () {
+      await expect(carbonCredit.mintCredit(
+        addr1.address,
+        amount,
+        projectType,
+        validityPeriod,
+        metadataURI
+      ))
+        .to.emit(carbonCredit, "CreditMinted")
+        .withArgs(0, addr1.address, amount);
+
+      const credit = await carbonCredit.getCreditDetails(0);
+      expect(credit.amount).to.equal(amount);
+      expect(credit.projectType).to.equal(projectType);
+      expect(credit.verified).to.equal(false);
+      expect(credit.metadataURI).to.equal(metadataURI);
+    });
+  });
+
+  describe("Verification", function () {
+    it("verified a carbon credit", async function () {
+      
+        // minting a credit
+      await carbonCredit.mintCredit(
+        addr1.address,
+        amount,
+        projectType,
+        validityPeriod,
+        metadataURI
+      );
+
+      
+      
+      await expect(carbonCredit.verifyCredit(0))
+        .to.emit(carbonCredit, "CreditVerified")
+        .withArgs(0);
+
+      const credit = await carbonCredit.getCreditDetails(0);
+      expect(credit.verified).to.equal(true);
+    });
+
+    it("failed to verify non-existent credit", async function () {
+      await expect(carbonCredit.verifyCredit(999))
+        .to.be.revertedWith("Token does not exist");
+    });
+  });
+});
+-------------------------------------------------------------------
+
+--------------------------------------------------------------------
+CarbonCreditMarket.test.js
+
+const { expect } = require("chai");
+const { ethers } = require("hardhat");
+
+describe("CarbonCreditMarket", function () {
+  let carbonCredit, carbonMarket, owner, seller, buyer, tokenId;
+  const creditAmount = 100;
+  const projectType = "Reforestation";
+  const validityPeriod = 365 * 24 * 60 * 60;
+  const metadataURI = "ipfs://example";
+  const listingPrice = ethers.parseEther("1.0");
+
+  beforeEach(async function () {
+    [owner, seller, buyer] = await ethers.getSigners();
+    
+    // Deploy CarbonCredit contract
+    const CarbonCredit = await ethers.getContractFactory("CarbonCredit");
+    carbonCredit = await CarbonCredit.deploy();
+
+    // Deploy CarbonCreditMarket contract
+    const CarbonCreditMarket = await ethers.getContractFactory("CarbonCreditMarket");
+    carbonMarket = await CarbonCreditMarket.deploy(await carbonCredit.getAddress());
+
+    // Mint a credit for testing
+    await carbonCredit.mintCredit(
+      seller.address,
+      creditAmount,
+      projectType,
+      validityPeriod,
+      metadataURI
+    );
+    tokenId = 0;
+  });
+
+  describe("Listing", function () {
+    it("Should list a carbon credit", async function () {
+      // Approve market contract
+      await carbonCredit.connect(seller).approve(await carbonMarket.getAddress(), tokenId);
+      
+      await expect(carbonMarket.connect(seller).listCredit(tokenId, listingPrice))
+        .to.emit(carbonMarket, "CreditListed")
+        .withArgs(tokenId, seller.address, listingPrice);
+
+      const listing = await carbonMarket.listings(tokenId);
+      expect(listing.seller).to.equal(seller.address);
+      expect(listing.price).to.equal(listingPrice);
+      expect(listing.isActive).to.be.true;
+    });
+
+    it("Should fail if lister is not token owner", async function () {
+      await carbonCredit.connect(seller).approve(await carbonMarket.getAddress(), tokenId);
+      await expect(carbonMarket.connect(buyer).listCredit(tokenId, listingPrice))
+        .to.be.revertedWith("Not token owner");
+    });
+
+    it("Should fail if market is not approved", async function () {
+      await expect(carbonMarket.connect(seller).listCredit(tokenId, listingPrice))
+        .to.be.revertedWith("Market not approved");
+    });
+  });
+
+  describe("Buying", function () {
+    beforeEach(async function () {
+      await carbonCredit.connect(seller).approve(await carbonMarket.getAddress(), tokenId);
+      await carbonMarket.connect(seller).listCredit(tokenId, listingPrice);
+    });
+
+    it("Should allow buying a listed credit", async function () {
+      await expect(carbonMarket.connect(buyer).buyCredit(tokenId, { value: listingPrice }))
+        .to.emit(carbonMarket, "CreditSold")
+        .withArgs(tokenId, seller.address, buyer.address, listingPrice);
+
+      expect(await carbonCredit.ownerOf(tokenId)).to.equal(buyer.address);
+    });
+
+    it("Should fail if incorrect price is sent", async function () {
+      const wrongPrice = ethers.parseEther("0.5");
+      await expect(carbonMarket.connect(buyer).buyCredit(tokenId, { value: wrongPrice }))
+        .to.be.revertedWith("Incorrect price");
+    });
+
+    it("Should fail if listing is not active", async function () {
+      await carbonMarket.connect(seller).cancelListing(tokenId);
+      await expect(carbonMarket.connect(buyer).buyCredit(tokenId, { value: listingPrice }))
+        .to.be.revertedWith("Listing not active");
+    });
+  });
+
+  describe("Listing Management", function () {
+    beforeEach(async function () {
+      await carbonCredit.connect(seller).approve(await carbonMarket.getAddress(), tokenId);
+      await carbonMarket.connect(seller).listCredit(tokenId, listingPrice);
+    });
+
+    it("Should allow canceling a listing", async function () {
+      await expect(carbonMarket.connect(seller).cancelListing(tokenId))
+        .to.emit(carbonMarket, "ListingCanceled")
+        .withArgs(tokenId, seller.address);
+
+      const listing = await carbonMarket.listings(tokenId);
+      expect(listing.isActive).to.be.false;
+    });
+
+    it("Should allow updating the price", async function () {
+      const newPrice = ethers.parseEther("2.0");
+      await expect(carbonMarket.connect(seller).updatePrice(tokenId, newPrice))
+        .to.emit(carbonMarket, "PriceUpdated")
+        .withArgs(tokenId, newPrice);
+
+      const listing = await carbonMarket.listings(tokenId);
+      expect(listing.price).to.equal(newPrice);
+    });
+  });
+});
+--------------------------------------------------------------------
+
+--------------------------------------------------------------------
+verification.test.js
+const { expect } = require("chai");
+const { ethers } = require("hardhat");
+
+describe("Verification", function () {
+  let carbonCredit, verification, owner, verifier, user, tokenId;
+  const creditAmount = 100;
+  const projectType = "Reforestation";
+  const validityPeriod = 365 * 24 * 60 * 60;
+  const metadataURI = "ipfs://example";
+  const verificationMetadataURI = "ipfs://verification-data";
+
+  beforeEach(async function () {
+    [owner, verifier, user] = await ethers.getSigners();
+    
+    // Deploy CarbonCredit contract
+    const CarbonCredit = await ethers.getContractFactory("CarbonCredit");
+    carbonCredit = await CarbonCredit.deploy();
+
+    // Mint a credit for testing BEFORE transferring ownership
+    await carbonCredit.mintCredit(
+      user.address,
+      creditAmount,
+      projectType,
+      validityPeriod,
+      metadataURI
+    );
+    tokenId = 0;
+
+    // Deploy Verification contract
+    const Verification = await ethers.getContractFactory("Verification");
+    verification = await Verification.deploy(await carbonCredit.getAddress());
+
+    // Transfer ownership of CarbonCredit to Verification contract for verification process
+    await carbonCredit.transferOwnership(await verification.getAddress());
+  });
+
+  describe("Verifier Management", function () {
+    it("Should add a verifier", async function () {
+      await expect(verification.addVerifier(verifier.address))
+        .to.emit(verification, "VerifierAdded")
+        .withArgs(verifier.address);
+
+      expect(await verification.isVerifier(verifier.address)).to.be.true;
+    });
+
+    it("Should remove a verifier", async function () {
+      await verification.addVerifier(verifier.address);
+      await expect(verification.removeVerifier(verifier.address))
+        .to.emit(verification, "VerifierRemoved")
+        .withArgs(verifier.address);
+
+      expect(await verification.isVerifier(verifier.address)).to.be.false;
+    });
+
+    it("Should only allow owner to add verifiers", async function () {
+      await expect(verification.connect(verifier).addVerifier(user.address))
+        .to.be.revertedWithCustomError(verification, "OwnableUnauthorizedAccount");
+    });
+  });
+
+  describe("Credit Verification", function () {
+    beforeEach(async function () {
+      await verification.addVerifier(verifier.address);
+    });
+
+    it("Should verify a credit", async function () {
+      await expect(verification.connect(verifier).verifyCredit(tokenId, verificationMetadataURI))
+        .to.emit(verification, "CreditVerified")
+        .withArgs(tokenId, verifier.address, verificationMetadataURI);
+
+      const verificationData = await verification.getVerificationData(tokenId);
+      expect(verificationData.verifier).to.equal(verifier.address);
+      expect(verificationData.metadataURI).to.equal(verificationMetadataURI);
+      
+      const creditDetails = await carbonCredit.getCreditDetails(tokenId);
+      expect(creditDetails.verified).to.be.true;
+    });
+
+    it("Should fail if non-verifier attempts verification", async function () {
+      await expect(verification.connect(user).verifyCredit(tokenId, verificationMetadataURI))
+        .to.be.revertedWith("Caller is not a verifier");
+    });
+  });
+
+  describe("Verification Data", function () {
+    beforeEach(async function () {
+      await verification.addVerifier(verifier.address);
+      await verification.connect(verifier).verifyCredit(tokenId, verificationMetadataURI);
+    });
+
+    it("Should return correct verification data", async function () {
+      const verificationData = await verification.getVerificationData(tokenId);
+      expect(verificationData.verifier).to.equal(verifier.address);
+      expect(verificationData.metadataURI).to.equal(verificationMetadataURI);
+      expect(verificationData.timestamp).to.be.gt(0);
+    });
+  });
+});--------------------------------------------------------------------
+
+Now, tell me where am I in the project and how far i've to go?
+
+
+
+
+#progress
