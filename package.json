@@ -2,11 +2,15 @@
   "name": "terratoken.io",
   "version": "1.0.0",
   "main": "index.js",
+ 
   "scripts": {
-    "test": "start",
-    "compile": "hardhat compile && node copyABIs.js"
-  },
-  "repository": {
+  "compile": "hardhat compile",
+  "copy-abis": "node scripts/copyABIs.js",
+  "build": "npm run compile && npm run copy-abis",
+  "test": "hardhat test"
+},
+ 
+"repository": {
     "type": "git",
     "url": "git+https://github.com/Vrohs/TerraToken.git"
   },
@@ -15,12 +19,14 @@
   "bugs": {
     "url": "https://github.com/Vrohs/TerraToken/issues"
   },
+
   "homepage": "https://github.com/Vrohs/TerraToken#readme",
   "description": "",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "hardhat": "^2.22.13"
   },
+
   "dependencies": {
     "@openzeppelin/contracts": "^5.0.2",
     "@web3-react/core": "^8.2.3",
