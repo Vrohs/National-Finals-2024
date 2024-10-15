@@ -10,14 +10,14 @@ describe("CarbonCredit", function () {
 
   beforeEach(async function () {
     [owner, addr1] = await ethers.getSigners();
-    
+
     const CarbonCredit = await ethers.getContractFactory("CarbonCredit");
     carbonCredit = await CarbonCredit.deploy();
   });
 
   describe("Minting", function () {
     it("Should mint a new carbon credit", async function () {
-      await expect(carbonCredit.mintCredit(
+      await expect(carbonCredit.connect(owner).mintCredit(
         addr1.address,
         amount,
         projectType,
@@ -36,10 +36,9 @@ describe("CarbonCredit", function () {
   });
 
   describe("Verification", function () {
-    it("verified a carbon credit", async function () {
-      
-        // minting a credit
-      await carbonCredit.mintCredit(
+    it("should verify a carbon credit", async function () {
+      // Minting a credit
+      await carbonCredit.connect(owner).mintCredit(
         addr1.address,
         amount,
         projectType,
@@ -47,9 +46,7 @@ describe("CarbonCredit", function () {
         metadataURI
       );
 
-      
-      
-      await expect(carbonCredit.verifyCredit(0))
+      await expect(carbonCredit.connect(owner).verifyCredit(0))
         .to.emit(carbonCredit, "CreditVerified")
         .withArgs(0);
 
@@ -57,8 +54,8 @@ describe("CarbonCredit", function () {
       expect(credit.verified).to.equal(true);
     });
 
-    it("failed to verify non-existent credit", async function () {
-      await expect(carbonCredit.verifyCredit(999))
+    it("should fail to verify non-existent credit", async function () {
+      await expect(carbonCredit.connect(owner).verifyCredit(999))
         .to.be.revertedWith("Token does not exist");
     });
   });

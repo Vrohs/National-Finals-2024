@@ -10,16 +10,8 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 1000,
-            "details": {
-              "yul": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf"
-              }
-            }
+            "runs": 1000
           },
-          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -57,16 +49,8 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 1000,
-            "details": {
-              "yul": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf"
-              }
-            }
+            "runs": 1000
           },
-          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -109,16 +93,8 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 1000,
-            "details": {
-              "yul": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf"
-              }
-            }
+            "runs": 1000
           },
-          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -155,16 +131,8 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 1000,
-            "details": {
-              "yul": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf"
-              }
-            }
+            "runs": 1000
           },
-          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -201,16 +169,8 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 1000,
-            "details": {
-              "yul": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf"
-              }
-            }
+            "runs": 1000
           },
-          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -238,50 +198,6 @@
         "IERC721Errors"
       ]
     },
-    "/home/vrohs/Desktop/TerraToken.io/node_modules/@openzeppelin/contracts/utils/Context.sol": {
-      "lastModificationDate": 1728049095371,
-      "contentHash": "67bfbc07588eb8683b3fd8f6f909563e",
-      "sourceName": "@openzeppelin/contracts/utils/Context.sol",
-      "solcConfig": {
-        "version": "0.8.20",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000,
-            "details": {
-              "yul": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf"
-              }
-            }
-          },
-          "viaIR": true,
-          "evmVersion": "paris",
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.20"
-      ],
-      "artifacts": [
-        "Context"
-      ]
-    },
     "/home/vrohs/Desktop/TerraToken.io/node_modules/@openzeppelin/contracts/utils/Strings.sol": {
       "lastModificationDate": 1728049095410,
       "contentHash": "ba57ff4ddf1d9cae9d2009792795b7f6",
@@ -291,16 +207,8 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 1000,
-            "details": {
-              "yul": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf"
-              }
-            }
+            "runs": 1000
           },
-          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -329,6 +237,42 @@
         "Strings"
       ]
     },
+    "/home/vrohs/Desktop/TerraToken.io/node_modules/@openzeppelin/contracts/utils/Context.sol": {
+      "lastModificationDate": 1728049095371,
+      "contentHash": "67bfbc07588eb8683b3fd8f6f909563e",
+      "sourceName": "@openzeppelin/contracts/utils/Context.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "Context"
+      ]
+    },
     "/home/vrohs/Desktop/TerraToken.io/node_modules/@openzeppelin/contracts/utils/introspection/ERC165.sol": {
       "lastModificationDate": 1728049095379,
       "contentHash": "6a55c353946e471d9792965d06208295",
@@ -338,16 +282,8 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 1000,
-            "details": {
-              "yul": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf"
-              }
-            }
+            "runs": 1000
           },
-          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -384,16 +320,8 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 1000,
-            "details": {
-              "yul": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf"
-              }
-            }
+            "runs": 1000
           },
-          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -428,16 +356,8 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 1000,
-            "details": {
-              "yul": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf"
-              }
-            }
+            "runs": 1000
           },
-          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -474,16 +394,8 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 1000,
-            "details": {
-              "yul": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf"
-              }
-            }
+            "runs": 1000
           },
-          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -518,16 +430,8 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 1000,
-            "details": {
-              "yul": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf"
-              }
-            }
+            "runs": 1000
           },
-          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -562,16 +466,8 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 1000,
-            "details": {
-              "yul": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf"
-              }
-            }
+            "runs": 1000
           },
-          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -606,16 +502,8 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 1000,
-            "details": {
-              "yul": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf"
-              }
-            }
+            "runs": 1000
           },
-          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {
@@ -653,16 +541,8 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 1000,
-            "details": {
-              "yul": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf"
-              }
-            }
+            "runs": 1000
           },
-          "viaIR": true,
           "evmVersion": "paris",
           "outputSelection": {
             "*": {

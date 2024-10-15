@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { listCredit } from '../services/web3Service';
 import { ethers } from 'ethers';
+import { TextField, Button, Typography, Box, Paper } from '@mui/material';
 
 const ListCredit = () => {
   const [tokenId, setTokenId] = useState('');
@@ -18,11 +19,14 @@ const ListCredit = () => {
   };
 
   return (
-    <form onSubmit={handleList}>
-      <input type="number" value={tokenId} onChange={(e) => setTokenId(e.target.value)} placeholder="Token ID" required />
-      <input type="text" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Price (in ETH)" required />
-      <button type="submit">List Credit</button>
-    </form>
+    <Paper elevation={3} sx={{ p: 3 }}>
+      <Typography variant="h5" gutterBottom>List Credit</Typography>
+      <Box component="form" onSubmit={handleList} sx={{ '& .MuiTextField-root': { m: 1, width: '100%' } }}>
+        <TextField label="Token ID" type="number" value={tokenId} onChange={(e) => setTokenId(e.target.value)} required />
+        <TextField label="Price (in ETH)" value={price} onChange={(e) => setPrice(e.target.value)} required />
+        <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>List Credit</Button>
+      </Box>
+    </Paper>
   );
 };
 

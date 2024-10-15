@@ -2,7 +2,7 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
 describe("Verification", function () {
-  let carbonCredit, verification, owner, verifier, user, tokenId;
+  let CarbonCredit, Verification, carbonCredit, verification, owner, verifier, user, tokenId;
   const creditAmount = 100;
   const projectType = "Reforestation";
   const validityPeriod = 365 * 24 * 60 * 60;
@@ -11,10 +11,11 @@ describe("Verification", function () {
 
   beforeEach(async function () {
     [owner, verifier, user] = await ethers.getSigners();
-    
+
     // Deploy CarbonCredit contract
-    const CarbonCredit = await ethers.getContractFactory("CarbonCredit");
+    CarbonCredit = await ethers.getContractFactory("CarbonCredit");
     carbonCredit = await CarbonCredit.deploy();
+    await carbonCredit.deployed();
 
     // Mint a credit for testing BEFORE transferring ownership
     await carbonCredit.mintCredit(
@@ -27,16 +28,17 @@ describe("Verification", function () {
     tokenId = 0;
 
     // Deploy Verification contract
-    const Verification = await ethers.getContractFactory("Verification");
-    verification = await Verification.deploy(await carbonCredit.getAddress());
+    Verification = await ethers.getContractFactory("Verification");
+    verification = await Verification.deploy(carbonCredit.address);
+    await verification.deployed();
 
     // Transfer ownership of CarbonCredit to Verification contract for verification process
-    await carbonCredit.transferOwnership(await verification.getAddress());
+    await carbonCredit.transferOwnership(verification.address);
   });
 
   describe("Verifier Management", function () {
     it("Should add a verifier", async function () {
-      await expect(verification.addVerifier(verifier.address))
+      await expect(verification.connect(owner).addVerifier(verifier.address))
         .to.emit(verification, "VerifierAdded")
         .withArgs(verifier.address);
 
@@ -44,8 +46,8 @@ describe("Verification", function () {
     });
 
     it("Should remove a verifier", async function () {
-      await verification.addVerifier(verifier.address);
-      await expect(verification.removeVerifier(verifier.address))
+      await verification.connect(owner).addVerifier(verifier.address);
+      await expect(verification.connect(owner).removeVerifier(verifier.address))
         .to.emit(verification, "VerifierRemoved")
         .withArgs(verifier.address);
 
@@ -54,13 +56,13 @@ describe("Verification", function () {
 
     it("Should only allow owner to add verifiers", async function () {
       await expect(verification.connect(verifier).addVerifier(user.address))
-        .to.be.revertedWithCustomError(verification, "OwnableUnauthorizedAccount");
+        .to.be.revertedWith("Ownable: caller is not the owner");
     });
   });
 
   describe("Credit Verification", function () {
     beforeEach(async function () {
-      await verification.addVerifier(verifier.address);
+      await verification.connect(owner).addVerifier(verifier.address);
     });
 
     it("Should verify a credit", async function () {
@@ -84,7 +86,7 @@ describe("Verification", function () {
 
   describe("Verification Data", function () {
     beforeEach(async function () {
-      await verification.addVerifier(verifier.address);
+      await verification.connect(owner).addVerifier(verifier.address);
       await verification.connect(verifier).verifyCredit(tokenId, verificationMetadataURI);
     });
 

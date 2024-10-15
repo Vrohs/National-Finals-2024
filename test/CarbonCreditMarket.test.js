@@ -2,26 +2,28 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
 describe("CarbonCreditMarket", function () {
-  let carbonCredit, carbonMarket, owner, seller, buyer, tokenId;
+  let CarbonCredit, CarbonCreditMarket, carbonCredit, carbonMarket, owner, seller, buyer, tokenId;
   const creditAmount = 100;
   const projectType = "Reforestation";
   const validityPeriod = 365 * 24 * 60 * 60;
   const metadataURI = "ipfs://example";
-  const listingPrice = ethers.parseEther("1.0");
+  let listingPrice;
 
   beforeEach(async function () {
     [owner, seller, buyer] = await ethers.getSigners();
-    
+
     // Deploy CarbonCredit contract
-    const CarbonCredit = await ethers.getContractFactory("CarbonCredit");
+    CarbonCredit = await ethers.getContractFactory("CarbonCredit");
     carbonCredit = await CarbonCredit.deploy();
+    await carbonCredit.deployed();
 
     // Deploy CarbonCreditMarket contract
-    const CarbonCreditMarket = await ethers.getContractFactory("CarbonCreditMarket");
-    carbonMarket = await CarbonCreditMarket.deploy(await carbonCredit.getAddress());
+    CarbonCreditMarket = await ethers.getContractFactory("CarbonCreditMarket");
+    carbonMarket = await CarbonCreditMarket.deploy(carbonCredit.address);
+    await carbonMarket.deployed();
 
     // Mint a credit for testing
-    await carbonCredit.mintCredit(
+    await carbonCredit.connect(owner).mintCredit(
       seller.address,
       creditAmount,
       projectType,
@@ -29,12 +31,14 @@ describe("CarbonCreditMarket", function () {
       metadataURI
     );
     tokenId = 0;
+
+    listingPrice = ethers.utils.parseEther("1.0");
   });
 
   describe("Listing", function () {
     it("Should list a carbon credit", async function () {
       // Approve market contract
-      await carbonCredit.connect(seller).approve(await carbonMarket.getAddress(), tokenId);
+      await carbonCredit.connect(seller).approve(carbonMarket.address, tokenId);
       
       await expect(carbonMarket.connect(seller).listCredit(tokenId, listingPrice))
         .to.emit(carbonMarket, "CreditListed")
@@ -47,7 +51,7 @@ describe("CarbonCreditMarket", function () {
     });
 
     it("Should fail if lister is not token owner", async function () {
-      await carbonCredit.connect(seller).approve(await carbonMarket.getAddress(), tokenId);
+      await carbonCredit.connect(seller).approve(carbonMarket.address, tokenId);
       await expect(carbonMarket.connect(buyer).listCredit(tokenId, listingPrice))
         .to.be.revertedWith("Not token owner");
     });
@@ -60,7 +64,7 @@ describe("CarbonCreditMarket", function () {
 
   describe("Buying", function () {
     beforeEach(async function () {
-      await carbonCredit.connect(seller).approve(await carbonMarket.getAddress(), tokenId);
+      await carbonCredit.connect(seller).approve(carbonMarket.address, tokenId);
       await carbonMarket.connect(seller).listCredit(tokenId, listingPrice);
     });
 
@@ -73,7 +77,7 @@ describe("CarbonCreditMarket", function () {
     });
 
     it("Should fail if incorrect price is sent", async function () {
-      const wrongPrice = ethers.parseEther("0.5");
+      const wrongPrice = ethers.utils.parseEther("0.5");
       await expect(carbonMarket.connect(buyer).buyCredit(tokenId, { value: wrongPrice }))
         .to.be.revertedWith("Incorrect price");
     });
@@ -87,7 +91,7 @@ describe("CarbonCreditMarket", function () {
 
   describe("Listing Management", function () {
     beforeEach(async function () {
-      await carbonCredit.connect(seller).approve(await carbonMarket.getAddress(), tokenId);
+      await carbonCredit.connect(seller).approve(carbonMarket.address, tokenId);
       await carbonMarket.connect(seller).listCredit(tokenId, listingPrice);
     });
 
@@ -101,7 +105,7 @@ describe("CarbonCreditMarket", function () {
     });
 
     it("Should allow updating the price", async function () {
-      const newPrice = ethers.parseEther("2.0");
+      const newPrice = ethers.utils.parseEther("2.0");
       await expect(carbonMarket.connect(seller).updatePrice(tokenId, newPrice))
         .to.emit(carbonMarket, "PriceUpdated")
         .withArgs(tokenId, newPrice);
