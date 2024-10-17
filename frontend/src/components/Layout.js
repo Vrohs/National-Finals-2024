@@ -8,7 +8,7 @@ const Layout = ({ children }) => {
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            TerraToken.io
+            TerraToken
           </Typography>
           <Navigation />
         </Toolbar>

@@ -26,7 +26,7 @@ const Home = () => {
     <Container maxWidth="lg">
       <HeroSection elevation={3}>
         <Typography variant="h2" component="h1" gutterBottom>
-          TerraToken.io
+          TerraToken
         </Typography>
         <Typography variant="h5" paragraph>
           The Future of Carbon Credits Trading
@@ -38,7 +38,7 @@ const Home = () => {
 
       <FeatureSection>
         <Typography variant="h4" component="h2" align="center" gutterBottom>
-          Why TerraToken.io?
+          Why TerraToken?
         </Typography>
         <Grid container spacing={3}>
           <Grid item xs={12} md={4}>
