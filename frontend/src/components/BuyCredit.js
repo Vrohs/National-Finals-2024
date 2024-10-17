@@ -14,7 +14,7 @@ const BuyCredit = () => {
       alert('Credit bought successfully!');
     } catch (error) {
       console.error('Error buying credit:', error);
-      alert('Failed to buy credit');
+      alert(`Failed to buy credit: ${error.message}`);
     }
   };
 

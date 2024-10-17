@@ -10,7 +10,8 @@ router.get('/:tokenId', async (req, res) => {
     const creditDetails = await carbonCreditContract.getCreditDetails(tokenId);
     res.json(creditDetails);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Error fetching credit details:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
