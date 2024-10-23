@@ -1,4 +1,3 @@
-// src/api/routes/carbonCredits.js
 const express = require('express');
 const { carbonCreditContract } = require('../../utils/web3');
 
