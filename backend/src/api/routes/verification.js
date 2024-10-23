@@ -1,4 +1,4 @@
-// src/api/routes/verification.js
+
 const express = require('express');
 const { verificationContract } = require('../../utils/web3');
 const verificationService = require('../../services/verificationService');
