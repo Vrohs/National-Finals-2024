@@ -99,8 +99,6 @@ app.get('/api/health', (req, res) => {
 app.get('/api/docs', (req, res) => {
   res.json({
     endpoints: {
-      'GET /api/health': 'Health check endpoint',
-      'GET /api/docs': 'This documentation',
       '/api/carbon-credits': 'Carbon credits related endpoints',
       '/api/verification': 'Verification related endpoints'
     }
