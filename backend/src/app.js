@@ -126,14 +126,7 @@ app.use((err, req, res, next) => {
 
 
 app.listen(port, () => {
-  console.log(`
-Server Started Successfully
--------------------------
-🚀 Server is running on port: ${port}
-🌍 Environment: ${process.env.NODE_ENV || 'development'}
-📁 Static files: ${process.env.NODE_ENV === 'production' ? 'frontend/build' : 'public'}
-🔒 CORS enabled for: ${corsOptions.origin}
-  `);
+  console.log(`Server Started Successfully`);
 });
 
 process.on('SIGTERM', () => {
