@@ -3,7 +3,6 @@ require('dotenv').config();
 
 const initializeWeb3 = () => {
   try {
-    // Validate environment variables
     const requiredEnvVars = [
       'ALCHEMY_RPC_URL',
       'PRIVATE_KEY',
@@ -19,7 +18,7 @@ const initializeWeb3 = () => {
     
     const provider = new ethers.JsonRpcProvider(process.env.ALCHEMY_RPC_URL);
     
-    // Validate provider connection
+    // provider connection
     provider.getNetwork().then(network => {
       console.log('Connected to network:', network.name);
     }).catch(err => {
